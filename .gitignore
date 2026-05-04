@@ -10,3 +10,8 @@
 
 !/.gitattributes
 !/.gitignore
+
+!/.github/workflows/*.yml
+!/scripts/*.ps1
+
+/PDCurses/

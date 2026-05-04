@@ -104,7 +104,7 @@ Options:
   -t --transparent  Transparent background
   -s --screensaver  Exit on any keypress
   -h --help         Print help and exit
-  -v --version      Print version and exit
+  -a --about        Print version, license, and bundle info
 
 Hotkeys:
   q                 quit
@@ -134,14 +134,14 @@ my $classic = 0;
 my $transparent = 0;
 my $screensaver = 0;
 my $print_help = 0;
-my $print_version = 0;
+my $print_about = 0;
 
 GetOptions(
     'classic'     => \$classic,
     'transparent' => \$transparent,
     'screensaver' => \$screensaver,
     'help'        => \$print_help,
-    'version'     => \$print_version,
+    'about'       => \$print_about,
 ) or die "$help_message";
 
 if ($print_help) {
@@ -149,8 +149,14 @@ if ($print_help) {
     exit;
 }
 
-if ($print_version) {
+if ($print_about) {
     print "Asciiquarium $version\n";
+    print "License: GPL v2   ->   https://www.gnu.org/licenses/old-licenses/gpl-2.0.html\n";
+    if ($ENV{PAR_TEMP}) {
+        print "\nThis .exe bundles Perl (via Strawberry Perl).\n";
+        print "  Perl:            https://www.perl.org/\n";
+        print "  Strawberry Perl: https://strawberryperl.com/\n";
+    }
     exit;
 }
 

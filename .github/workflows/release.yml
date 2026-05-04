@@ -1,0 +1,69 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: 'Label for this run'
+        required: false
+        default: ''
+      tag:
+        description: 'Release tag'
+        required: true
+      overwrite:
+        description: 'Overwrite existing release'
+        type: boolean
+        default: false
+
+run-name: "${{ inputs.note || 'release' }}"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Check existing release
+        if: inputs.overwrite == false
+        run: |
+          if gh release view ${{ inputs.tag }} --repo $REPO 2>/dev/null; then
+            echo "::error::Release ${{ inputs.tag }} already exists. Use overwrite=true to replace."
+            exit 1
+          fi
+
+      - name: Find latest successful build run
+        id: run
+        run: |
+          RUN_ID=$(gh run list --repo $REPO --workflow=build.yml --status=success --limit=1 --json databaseId -q '.[0].databaseId')
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::No successful build runs found"
+            exit 1
+          fi
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Download asciiquarium.exe artifact
+        run: gh run download ${{ steps.run.outputs.run_id }} --repo $REPO --name asciiquarium
+
+      - name: Upload to existing release
+        if: inputs.overwrite == true
+        run: |
+          if gh release view ${{ inputs.tag }} --repo $REPO &>/dev/null; then
+            gh release upload ${{ inputs.tag }} asciiquarium.exe --clobber --repo $REPO
+          else
+            gh release create ${{ inputs.tag }} asciiquarium.exe --repo $REPO --title "${{ inputs.tag }}"
+          fi
+
+      - name: Create new release
+        if: inputs.overwrite == false
+        run: gh release create ${{ inputs.tag }} asciiquarium.exe --repo $REPO --title "${{ inputs.tag }}"
+
+      - name: Checkout repo
+        if: inputs.overwrite == true
+        uses: actions/checkout@v6
+
+      - name: Update tag to latest commit
+        if: inputs.overwrite == true
+        run: |
+          git tag -f ${{ inputs.tag }}
+          git push origin ${{ inputs.tag }} --force

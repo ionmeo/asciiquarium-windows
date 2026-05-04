@@ -1,0 +1,29 @@
+name: build
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: 'Label for this run'
+        required: false
+        default: ''
+
+run-name: "${{ inputs.note || 'build' }}"
+
+jobs:
+  windows-amd64:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout asciiquarium
+        uses: actions/checkout@v6
+
+      - name: Run scripts/build.ps1
+        shell: pwsh
+        run: ./scripts/build.ps1
+
+      - name: Upload asciiquarium.exe artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: asciiquarium
+          path: asciiquarium.exe
+          if-no-files-found: error

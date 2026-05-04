@@ -19,14 +19,24 @@ it's executable and put it somewhere convenient, like `/usr/local/bin` or
 ### Dependencies
 
 Asciiquarium depends on the Term::Animation perl module, which depends on
-Curses. You can get both modules from http://search.cpan.org. This program
-will only run on platforms that have a Curses library (so it won't work on
-Windows, but you might get it to run under cygwin).
+Curses. You can get both modules from http://search.cpan.org.
 
 Installing dependencies on debian/ubuntu:
 ```
 sudo apt install perl-modules libcurses-perl
 sudo cpan -i Term::Animation
+```
+
+### Windows
+
+You can download the `.exe` file from the [releases](https://github.com/ionmeo/asciiquarium-windows/releases) page.
+
+**Build:**
+
+```powershell
+git clone https://github.com/ionmeo/asciiquarium-windows
+cd asciiquarium-windows
+./scripts/build.ps1
 ```
 
 ## Usage
@@ -37,7 +47,7 @@ Options:
   -t --transparent  Transparent background
   -s --screensaver  Exit on any keypress
   -h --help         Print help and exit
-  -v --version      Print version and exit
+  -a --about        Print version, license, and bundle info
 
 Hotkeys:
   q                 quit
