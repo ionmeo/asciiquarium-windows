@@ -78,7 +78,7 @@ cpanm Term::Animation
 cpanm PAR::Packer
 
 Write-Host "Creating asciiquarium.exe..." -ForegroundColor Green
-pp -o asciiquarium.exe "$PSScriptRoot\..\asciiquarium"
+pp -n -c -o asciiquarium.exe "$PSScriptRoot\..\asciiquarium"
 
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green
