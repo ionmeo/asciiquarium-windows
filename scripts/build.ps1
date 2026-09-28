@@ -9,7 +9,9 @@ if ($PSVersionTable.PSVersion.Major -lt 7) {
 if (-not (Test-Path strawberry-perl)) {
     Write-Host "Downloading Strawberry Perl portable..." -ForegroundColor Green
     Invoke-WebRequest -Uri 'https://github.com/StrawberryPerl/Perl-Dist-Strawberry/releases/download/SP_54221_64bit/strawberry-perl-5.42.2.1-64bit-portable.zip' -OutFile strawberry-perl.zip
-    Expand-Archive -Path strawberry-perl.zip -DestinationPath strawberry-perl
+    Write-Host "Extracting Strawberry Perl..." -ForegroundColor Green
+    New-Item -ItemType Directory strawberry-perl | Out-Null
+    & "$env:SystemRoot\System32\tar.exe" -xf strawberry-perl.zip -C strawberry-perl
     Remove-Item strawberry-perl.zip
 }
 
@@ -20,9 +22,10 @@ if (-not (Test-Path PDCurses\wincon\pdcurses.a)) {
     Write-Host "Cloning and building PDCurses..." -ForegroundColor Green
     if (-not (Test-Path PDCurses)) {
         git clone https://github.com/wmcbrine/PDCurses
+        git -C PDCurses checkout 2b6a9e9
     }
     Push-Location PDCurses\wincon
-    make -f Makefile
+    make -j $env:NUMBER_OF_PROCESSORS -f Makefile
     Pop-Location
 }
 
@@ -34,8 +37,8 @@ cp PDCurses/wincon/pdcurses.a strawberry-perl/c/lib/libpdcurses.a
 
 perl -e "use Curses; 1" 2>$null
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Installing Term::Animation... (first pass; failure expected)" -ForegroundColor Green
-    cpanm Term::Animation
+    Write-Host "Fetching Curses-1.46... (failure expected)" -ForegroundColor Green
+    cpanm Curses@1.46
 
     Write-Host "Patching Makefile of Curses-1.46..." -ForegroundColor Green
     $cursesDir = (Get-Item strawberry-perl/data/.cpanm/work/*/Curses-* |
